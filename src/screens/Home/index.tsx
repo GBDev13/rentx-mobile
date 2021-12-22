@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StatusBar } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { Ionicons } from '@expo/vector-icons';
 
 import Logo from '../../assets/logo.svg';
 import { Car } from '../../components/Car';
@@ -11,25 +12,55 @@ import {
   Container,
   Header,
   HeaderContent,
-  TotalCars
+  TotalCars,
+  MyCarsButton
 } from './styles';
+import { api } from '../../service/api';
+import { CarDTO } from '../../dtos/CarDTO';
+import { Load } from '../../components/Load';
+import { useTheme } from 'styled-components';
+
+interface NavigationProps{
+  navigate:(
+    screen: string,
+    carObject?:{
+      car: CarDTO
+    }
+  ) => void
+}
 
 export function Home() {
-  const navigation = useNavigation<any>();
+  const [cars, setCars] = useState<CarDTO[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const carData = {
-    brand: "Audi",
-    name: "RS 5 Coupé",
-    rent: {
-      period: 'Ao dia',
-      price: 120
-    },
-    thumbnail: 'https://production.autoforce.com/uploads/version/profile_image/5505/comprar-prestige-plus-40-tfsi-s-tronic_7243435b0b.png'
+  const navigation = useNavigation<NavigationProps>();
+
+  const theme = useTheme();
+
+  function handleCarDetails(car: CarDTO) {
+    navigation.navigate('CarDetails', { car });
   };
 
-  function handleCarDetails() {
-    navigation.navigate('CarDetails');
-  }
+  function handleOpenMyCars() {
+    navigation.navigate('MyCars');
+  };
+
+  useEffect(() => {
+    async function fetchCars() {
+      try {
+        setLoading(true);
+        const { data } = await api.get("/cars");
+    
+        setCars(data);
+      } catch (err) {
+        console.log(err)
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCars();
+  }, []);
 
   return (
     <Container>
@@ -46,17 +77,26 @@ export function Home() {
           />
 
           <TotalCars>
-            Total de 12 carros
+            Total de {cars?.length} carros
           </TotalCars>
         </HeaderContent>
       </Header>
 
-      <CarList
-        data={[1,2,3,4,5,6,7]}
-        keyExtractor={item => String(item)}
-        renderItem={({ item }) => <Car data={carData} onPress={handleCarDetails}/>}
-      />
+      {loading ? <Load /> : (
+        <CarList
+          data={cars}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => <Car data={item} onPress={() => handleCarDetails(item)}/>}
+        />
+      )}
       
+      <MyCarsButton onPress={handleOpenMyCars}>
+        <Ionicons
+          color={theme.colors.shape}
+          size={32}
+          name="ios-car-sport"
+        />
+      </MyCarsButton>
     </Container>
   );
 }

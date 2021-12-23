@@ -6,6 +6,7 @@ import { ImageSlider } from '../../components/ImageSlider';
 
 import {
   Container,
+  HeaderWrapper,
   Header,
   CarImages,
   Content,
@@ -23,6 +24,8 @@ import {
 import { Button } from '../../components/Button';
 import { CarDTO } from '../../dtos/CarDTO';
 import { getAccessoryIcon } from '../../utils/getAccessoryIcon';
+import Animated, { Extrapolate, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { StatusBar } from 'react-native';
 
 interface Params {
   car: CarDTO;
@@ -44,6 +47,29 @@ export function CarDetails() {
 
   const { car } = route.params as Params;
 
+  const scrollY = useSharedValue(0);
+  const scrollHandler = useAnimatedScrollHandler(event => {
+    scrollY.value = event.contentOffset.y;
+  });
+
+  const headerStyleAnimation = useAnimatedStyle(() => ({
+    height: interpolate(
+      scrollY.value,
+      [0, 200],
+      [200, 70],
+      Extrapolate.CLAMP
+    )
+  }));
+
+  const sliderCarsStyleAnimation = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      scrollY.value,
+      [0, 150],
+      [1, 0],
+      Extrapolate.CLAMP
+    )
+  }));
+
   function handleConfirmRental() {
     navigation.navigate('Scheduling', { car });
   };
@@ -54,15 +80,26 @@ export function CarDetails() {
   
   return (
     <Container>
-      <Header>
-        <BackButton onPress={handleGoBack}/>
-      </Header>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent
+      />
+      
+      <HeaderWrapper style={headerStyleAnimation}>
+        <Header>
+          <BackButton onPress={handleGoBack} />
+        </Header>
 
-      <CarImages>
-        <ImageSlider imagesUrl={car.photos}/>
-      </CarImages>
+        <CarImages style={sliderCarsStyleAnimation}>
+          <ImageSlider imagesUrl={car.photos}/>
+        </CarImages>
+      </HeaderWrapper>
     
-      <Content>
+      <Content
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+      >
         <Details>
           <Description>
             <Brand>{car.brand}</Brand>
@@ -85,14 +122,13 @@ export function CarDetails() {
               />
             ))
           }
-          {/* <Accessory name="3.2s" icon={AccelerationSvg}/>
-          <Accessory name="800 HP" icon={ForceSvg}/>
-          <Accessory name="Gasolina" icon={GasolineSvg}/>
-          <Accessory name="Auto" icon={ExchangeSvg}/>
-          <Accessory name="2 pessoas" icon={PeopleSvg}/> */}
         </Accessories>
 
         <About>
+          {car.about}
+          {car.about}
+          {car.about}
+          {car.about}
           {car.about}
         </About>
       </Content>

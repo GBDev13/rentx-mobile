@@ -24,7 +24,7 @@ import {
 
 } from './styles';
 import { Car } from '../../components/Car';
-import { Load } from '../../components/Load';
+import { LoadAnimation } from '../../components/LoadAnimation';
 
 interface CarProps {
   car: CarDTO;
@@ -93,7 +93,7 @@ export function MyCars() {
           <AppointmentsQuantity>{cars.length}</AppointmentsQuantity>
         </Appointments>
 
-        {loading ? <Load /> : (
+        {loading ? <LoadAnimation /> : (
           <FlatList
             data={cars}
             keyExtractor={item => item.id}

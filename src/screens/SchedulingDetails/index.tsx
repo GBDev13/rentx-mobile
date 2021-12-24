@@ -57,12 +57,24 @@ interface RentalPeriod {
   end: string;
 }
 
+interface NavigationProps{
+  navigate:(
+    screen: string,
+    props?: {
+      nextScreenRoute: string;
+      title: string;
+      message: string;
+    }
+  ) => void;
+  goBack: () => void;
+}
+
 export function SchedulingDetails(){
   const [rentalPeriod, setRentalPeriod] = useState<RentalPeriod>({} as RentalPeriod);
   const [loading, setLoading] = useState(false);
 
   const theme = useTheme();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProps>();
   const route = useRoute();
 
   const { car, dates } = route.params as Params;
@@ -92,7 +104,11 @@ export function SchedulingDetails(){
         unavailable_dates
       });
       
-      navigation.navigate('SchedulingComplete');
+      navigation.navigate("Confirmation", {
+        nextScreenRoute: 'Home',
+        title: 'Carro alugado!',
+        message: 'Agora você só precisa ir\naté a concessionária da RENTX'
+      });
     } catch (err) {
       console.log(err);
       Alert.alert("Não foi possível confimar o agendamento")

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { BackHandler, StatusBar } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { StatusBar } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
 
 import { PanGestureHandler } from 'react-native-gesture-handler';
 
-import Animated, {
+import {
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -81,29 +81,31 @@ export function Home() {
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchCars() {
       try {
         setLoading(true);
         const { data } = await api.get("/cars");
+        if (isMounted) {
+          setCars(data);
+        }
     
-        setCars(data);
       } catch (err) {
         console.log(err)
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchCars();
-  }, []);
 
-  useFocusEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-        'hardwareBackPress',
-        () => true
-    );
-    return () => backHandler.remove();
-  });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <Container>
@@ -135,7 +137,7 @@ export function Home() {
         />
       )}
       
-      <PanGestureHandler onGestureEvent={onGestureEvent}>
+      {/* <PanGestureHandler onGestureEvent={onGestureEvent}>
         <MyCarsButtonWrapper style={myCarsbuttonStyle}>
           <MyCarsButtonAnimated onPress={handleOpenMyCars}>
             <Ionicons
@@ -145,7 +147,7 @@ export function Home() {
             />
           </MyCarsButtonAnimated>
         </MyCarsButtonWrapper>
-      </PanGestureHandler>
+      </PanGestureHandler> */}
     </Container>
   );
 }

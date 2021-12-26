@@ -5,6 +5,7 @@ import { useTheme } from 'styled-components';
 import { BackButton } from '../../../components/BackButton';
 import { Bullet } from '../../../components/Bullet';
 import { Button } from '../../../components/Button';
+import { api } from '../../../service/api';
 
 import {
   Container,
@@ -59,12 +60,22 @@ export function SignUpSecondStep(){
     if (password !== passwordConfirm) {
       return Alert.alert("As senhas não são iguais");
     }
-
-    navigation.navigate("Confirmation", {
-      nextScreenRoute: 'SignIn',
-      title: 'Conta criada!',
-      message: 'Agora é só fazer login\ne aproveitar'
-    });
+    
+    try {
+      await api.post("/users", {
+        ...user,
+        driver_license: user.driverLicense,
+        password
+      });
+  
+      navigation.navigate("Confirmation", {
+        nextScreenRoute: 'SignIn',
+        title: 'Conta criada!',
+        message: 'Agora é só fazer login\ne aproveitar'
+      });
+    } catch (err) {
+      Alert.alert("Opa", "Não foi possível cadastrar");
+    }
   }
 
   return (

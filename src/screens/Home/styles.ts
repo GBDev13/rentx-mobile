@@ -3,7 +3,7 @@ import { RectButton } from "react-native-gesture-handler";
 import Animated from "react-native-reanimated";
 import { RFValue } from "react-native-responsive-fontsize";
 import styled from "styled-components/native";
-import { CarDTO } from "../../dtos/CarDTO";
+import { Car as ModelCar } from "../../database/model/Car";
 
 const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
 
@@ -34,7 +34,7 @@ export const TotalCars = styled.Text`
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const CarList = styled(FlatList as new () => FlatList<CarDTO>).attrs({
+export const CarList = styled(FlatList as new () => FlatList<ModelCar>).attrs({
   contentContainerStyle: {
     padding: 24,
   },
